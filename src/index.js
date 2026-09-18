@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import chalk from 'chalk';
 import { parseArgs } from 'util';
 
 const commands = {
@@ -13,6 +12,7 @@ const commands = {
 };
 
 async function showHelp() {
+  const { default: chalk } = await import('chalk');
   console.log(chalk.cyan.bold('\n📦 Terminal Productivity Hub'));
   console.log(chalk.gray('━'.repeat(40)));
   console.log(chalk.white('\nAvailable commands:\n'));
@@ -84,11 +84,15 @@ async function main() {
         break;
       }
         
-      default:
+      default: {
+        const { default: chalk } = await import('chalk');
         console.log(chalk.red(`Unknown command: ${command}`));
         console.log(chalk.yellow('Run "tph" to see available commands'));
+        break;
+      }
     }
   } catch (error) {
+    const { default: chalk } = await import('chalk');
     console.error(chalk.red('Error:'), error.message);
     process.exit(1);
   }
