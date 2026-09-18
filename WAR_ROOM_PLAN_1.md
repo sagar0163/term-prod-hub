@@ -1,4 +1,4 @@
-- [ ] Fix `shortcutManager` arguments in `src/index.js` if it's broken, or just implement the feature.
-- [ ] Implement interactive UI for `tph notes` when no arguments are provided using `inquirer`.
-- [ ] Implement interactive UI for `tph shortcuts run` when no alias is provided using `inquirer`.
-- [ ] Ensure tests/build pass (run if any).
+- [x] Fix `shortcutManager` arguments in `src/index.js` if it's broken, or just implement the feature.
+- [x] Implement interactive UI for `tph notes` when no arguments are provided using `inquirer`.
+- [x] Implement interactive UI for `tph shortcuts run` when no alias is provided using `inquirer`.
+- [x] Ensure tests/build pass (run if any).

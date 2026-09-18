@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import inquirer from 'inquirer';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -31,6 +32,89 @@ function saveNotes(notes) {
 
 export async function notesManager(action, text) {
   const notes = loadNotes();
+  
+  if (!action) {
+    if (notes.length === 0) {
+      console.log(chalk.yellow('No notes yet'));
+      return;
+    }
+    
+    // Interactive menu
+    let currentNotes = notes;
+    let searching = false;
+    
+    while (true) {
+      const choices = currentNotes.map(n => ({
+        name: `${n.text.length > 50 ? n.text.substring(0, 50) + '...' : n.text} (${new Date(n.created).toLocaleDateString()})`,
+        value: n.id
+      }));
+      
+      choices.unshift(new inquirer.Separator());
+      choices.unshift({ name: '🔍 Search notes', value: '__search__' });
+      if (searching) {
+        choices.unshift({ name: '❌ Clear search', value: '__clear__' });
+      }
+      choices.push(new inquirer.Separator());
+      choices.push({ name: '❌ Exit', value: '__exit__' });
+
+      const { selected } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'selected',
+          message: searching ? 'Search results:' : 'Select a note:',
+          choices,
+          pageSize: 15
+        }
+      ]);
+      
+      if (selected === '__exit__') return;
+      
+      if (selected === '__search__') {
+        const { query } = await inquirer.prompt([
+          { type: 'input', name: 'query', message: 'Enter search term:' }
+        ]);
+        currentNotes = notes.filter(n => n.text.toLowerCase().includes(query.toLowerCase()));
+        searching = true;
+        continue;
+      }
+      
+      if (selected === '__clear__') {
+        currentNotes = notes;
+        searching = false;
+        continue;
+      }
+      
+      // Selected a note
+      const note = notes.find(n => n.id === selected);
+      const { noteAction } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'noteAction',
+          message: 'Action:',
+          choices: ['View', 'Delete', 'Back']
+        }
+      ]);
+      
+      if (noteAction === 'View') {
+        console.log(chalk.cyan('\n📝 Note Details:'));
+        console.log(chalk.gray(`ID: ${note.id}`));
+        console.log(chalk.gray(`Created: ${new Date(note.created).toLocaleString()}`));
+        console.log(chalk.white(`\n${note.text}\n`));
+        
+        await inquirer.prompt([{ type: 'input', name: 'continue', message: 'Press Enter to continue...' }]);
+      } else if (noteAction === 'Delete') {
+        const filtered = notes.filter(n => n.id !== selected);
+        saveNotes(filtered);
+        console.log(chalk.green('✓ Note deleted'));
+        // Update current lists
+        const idx = notes.findIndex(n => n.id === selected);
+        if (idx !== -1) notes.splice(idx, 1);
+        const currIdx = currentNotes.findIndex(n => n.id === selected);
+        if (currIdx !== -1) currentNotes.splice(currIdx, 1);
+      }
+    }
+    return;
+  }
   
   switch (action) {
     case 'add':
