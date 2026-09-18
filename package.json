@@ -9,7 +9,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "node --test"
   },
   "keywords": [
     "cli",
