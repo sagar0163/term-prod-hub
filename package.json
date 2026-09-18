@@ -11,7 +11,13 @@
     "start": "node src/index.js",
     "test": "echo \"No tests specified\" && exit 0"
   },
-  "keywords": ["cli", "productivity", "terminal", "tools", "automation"],
+  "keywords": [
+    "cli",
+    "productivity",
+    "terminal",
+    "tools",
+    "automation"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
