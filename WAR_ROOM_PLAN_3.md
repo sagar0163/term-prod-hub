@@ -1,0 +1,2 @@
+- [ ] Sanitize outputFile in qrcode.js to prevent path traversal
+- [ ] Write unit test in test/qrcode.test.js
