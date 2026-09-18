@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import { parseArgs } from 'util';
 
 const commands = {
   clipboard: 'Manage clipboard history',

@@ -1,0 +1,4 @@
+- [x] Remove top-level command imports in `index.js`.
+- [x] Dynamically `await import()` the specific module inside the `switch` statement based on the user's command.
+- [x] Ensure startup time for `tph sys` is under 50ms.
+- [x] Clean up unused imports.
