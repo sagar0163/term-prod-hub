@@ -2,12 +2,6 @@
 
 import chalk from 'chalk';
 import { parseArgs } from 'util';
-import { clipboardManager } from './commands/clipboard.js';
-import { notesManager } from './commands/notes.js';
-import { searchTool } from './commands/search.js';
-import { systemInfo } from './commands/system.js';
-import { qrGenerator } from './commands/qrcode.js';
-import { shortcutManager } from './commands/shortcuts.js';
 
 const commands = {
   clipboard: 'Manage clipboard history',
@@ -51,32 +45,44 @@ async function main() {
   try {
     switch (command) {
       case 'clipboard':
-      case 'cb':
+      case 'cb': {
+        const { clipboardManager } = await import('./commands/clipboard.js');
         await clipboardManager(subCommand, payload);
         break;
+      }
         
       case 'notes':
-      case 'n':
+      case 'n': {
+        const { notesManager } = await import('./commands/notes.js');
         await notesManager(subCommand, payload);
         break;
+      }
         
       case 'search':
-      case 's':
+      case 's': {
+        const { searchTool } = await import('./commands/search.js');
         await searchTool(payload);
         break;
+      }
         
-      case 'sys':
+      case 'sys': {
+        const { systemInfo } = await import('./commands/system.js');
         await systemInfo(subCommand);
         break;
+      }
         
-      case 'qr':
+      case 'qr': {
+        const { qrGenerator } = await import('./commands/qrcode.js');
         await qrGenerator(payload);
         break;
+      }
         
       case 'shortcuts':
-      case 'sh':
+      case 'sh': {
+        const { shortcutManager } = await import('./commands/shortcuts.js');
         await shortcutManager(subCommand, rest[1], rest.slice(2).join(' '));
         break;
+      }
         
       default:
         console.log(chalk.red(`Unknown command: ${command}`));

@@ -1,5 +1,5 @@
-- [ ] Review `src/index.js` for eager imports.
-- [ ] Refactor `src/index.js` to remove top-level imports of command modules.
-- [ ] Use dynamic `await import(...)` inside the switch statement in `src/index.js`.
-- [ ] Test the CLI commands.
-- [ ] Commit the changes.
+- [x] Review `src/index.js` for eager imports.
+- [x] Refactor `src/index.js` to remove top-level imports of command modules.
+- [x] Use dynamic `await import(...)` inside the switch statement in `src/index.js`.
+- [x] Test the CLI commands.
+- [x] Commit the changes.
