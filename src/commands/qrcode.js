@@ -32,7 +32,8 @@ export async function qrGenerator(text, outputFile = null) {
         fs.mkdirSync(DATA_DIR, { recursive: true });
       }
       
-      const filePath = path.join(DATA_DIR, outputFile || 'qrcode.png');
+      const sanitizedFile = path.basename(outputFile);
+      const filePath = path.join(DATA_DIR, sanitizedFile || 'qrcode.png');
       await QRCode.toFile(filePath, text, {
         width: 300,
         margin: 2
