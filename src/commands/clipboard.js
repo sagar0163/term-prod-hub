@@ -1,38 +1,8 @@
 import chalk from 'chalk';
 import clipboard from 'clipboardy';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.join(__dirname, '../../data');
-const CLIPBOARD_FILE = path.join(DATA_DIR, 'clipboard.json');
-
-function ensureDataDir() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-}
-
-function loadHistory() {
-  ensureDataDir();
-  if (!fs.existsSync(CLIPBOARD_FILE)) {
-    return [];
-  }
-  try {
-    return JSON.parse(fs.readFileSync(CLIPBOARD_FILE, 'utf8'));
-  } catch {
-    return [];
-  }
-}
-
-function saveHistory(history) {
-  fs.writeFileSync(CLIPBOARD_FILE, JSON.stringify(history, null, 2));
-}
+import db from '../db.js';
 
 export async function clipboardManager(action, text) {
-  const history = loadHistory();
-  
   switch (action) {
     case 'copy':
     case 'c':
@@ -41,19 +11,25 @@ export async function clipboardManager(action, text) {
         return;
       }
       clipboard.writeSync(text);
-      history.unshift({ text, timestamp: new Date().toISOString() });
-      saveHistory(history.slice(0, 50)); // Keep last 50
+      db.prepare('INSERT INTO clipboard (text, timestamp) VALUES (?, ?)').run(text, new Date().toISOString());
+      
+      // Keep last 50
+      const count = db.prepare('SELECT COUNT(*) as count FROM clipboard').get().count;
+      if (count > 50) {
+        db.prepare('DELETE FROM clipboard WHERE id NOT IN (SELECT id FROM clipboard ORDER BY id DESC LIMIT 50)').run();
+      }
       console.log(chalk.green('✓ Copied to clipboard'));
       break;
       
     case 'list':
     case 'ls':
+      const history = db.prepare('SELECT * FROM clipboard ORDER BY id DESC LIMIT 10').all();
       if (history.length === 0) {
         console.log(chalk.yellow('No clipboard history'));
         return;
       }
       console.log(chalk.cyan('\nClipboard History:\n'));
-      history.slice(0, 10).forEach((item, i) => {
+      history.forEach((item, i) => {
         const preview = item.text.length > 50 ? item.text.substring(0, 50) + '...' : item.text;
         console.log(chalk.gray(`${i + 1}.`) + ' ' + chalk.white(preview));
         console.log(chalk.gray(`   ${new Date(item.timestamp).toLocaleString()}\n`));
@@ -61,7 +37,7 @@ export async function clipboardManager(action, text) {
       break;
       
     case 'clear':
-      saveHistory([]);
+      db.prepare('DELETE FROM clipboard').run();
       console.log(chalk.green('✓ Clipboard history cleared'));
       break;
       
