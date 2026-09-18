@@ -75,7 +75,7 @@ async function main() {
         
       case 'shortcuts':
       case 'sh':
-        await shortcutManager(subCommand, rest[0], rest[1]);
+        await shortcutManager(subCommand, rest[1], rest.slice(2).join(' '));
         break;
         
       default:

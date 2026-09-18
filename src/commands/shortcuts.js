@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import inquirer from 'inquirer';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -31,6 +32,65 @@ function saveShortcuts(shortcuts) {
 
 export async function shortcutManager(action, alias, command) {
   const shortcuts = loadShortcuts();
+  
+  if (action === 'run' || action === 'r') {
+    if (!alias) {
+      const entries = Object.entries(shortcuts);
+      if (entries.length === 0) {
+        console.log(chalk.yellow('No shortcuts defined'));
+        return;
+      }
+      
+      let currentEntries = entries;
+      let searching = false;
+      
+      while (true) {
+        const choices = currentEntries.map(([k, v]) => ({
+          name: `${k.padEnd(15)} → ${v}`,
+          value: k
+        }));
+        
+        choices.unshift(new inquirer.Separator());
+        choices.unshift({ name: '🔍 Search shortcuts', value: '__search__' });
+        if (searching) {
+          choices.unshift({ name: '❌ Clear search', value: '__clear__' });
+        }
+        choices.push(new inquirer.Separator());
+        choices.push({ name: '❌ Exit', value: '__exit__' });
+
+        const { selected } = await inquirer.prompt([
+          {
+            type: 'list',
+            name: 'selected',
+            message: searching ? 'Search results:' : 'Select a shortcut to run:',
+            choices,
+            pageSize: 15
+          }
+        ]);
+        
+        if (selected === '__exit__') return;
+        
+        if (selected === '__search__') {
+          const { query } = await inquirer.prompt([
+            { type: 'input', name: 'query', message: 'Enter search term:' }
+          ]);
+          currentEntries = entries.filter(([k, v]) => k.toLowerCase().includes(query.toLowerCase()) || v.toLowerCase().includes(query.toLowerCase()));
+          searching = true;
+          continue;
+        }
+        
+        if (selected === '__clear__') {
+          currentEntries = entries;
+          searching = false;
+          continue;
+        }
+        
+        // Run selected shortcut
+        alias = selected;
+        break; // break out of while loop to run it below
+      }
+    }
+  }
   
   switch (action) {
     case 'add':
